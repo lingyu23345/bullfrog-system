@@ -111,10 +111,12 @@ if __name__ == '__main__':
     print("豆包视觉 API 代理服务")
     print("=" * 50)
     print(f"Python: {sys.version.split()[0]}")
-    print(f"监听地址: http://0.0.0.0:5000")
+    print(f"监听地址: http://127.0.0.1:8090")
     print(f"API 端点:")
     print(f"  POST /api/doubao - 豆包视觉API代理")
     print(f"  GET  /health     - 健康检查")
     print("=" * 50)
 
-    app.run(host='0.0.0.0', port=5000, debug=False, threaded=True)
+    # 监听 0.0.0.0:8090。前端默认使用 127.0.0.1:8090 访问，
+    # 避免部分浏览器把 localhost 解析为 ::1 后无法连接 IPv4 服务。
+    app.run(host='0.0.0.0', port=8090, debug=False, threaded=True)

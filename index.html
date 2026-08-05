@@ -355,40 +355,6 @@
             margin-top: 15px;
             flex-wrap: wrap;
         }
-        .ocr-raw-toggle {
-            background: #6c757d;
-            color: white;
-            border: none;
-            padding: 6px 12px;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 13px;
-            margin-top: 10px;
-        }
-        .ocr-engine-tabs {
-            display: flex;
-            gap: 0;
-            border-bottom: 2px solid #007bff;
-            margin-bottom: 15px;
-        }
-        .ocr-engine-tab {
-            padding: 10px 24px;
-            background: #e9ecef;
-            border: none;
-            border-radius: 8px 8px 0 0;
-            cursor: pointer;
-            transition: all 0.3s;
-            font-weight: 500;
-            font-size: 14px;
-            color: #495057;
-        }
-        .ocr-engine-tab.active {
-            background: #007bff;
-            color: white;
-        }
-        .ocr-engine-tab:hover:not(.active) {
-            background: #dee2e6;
-        }
         .ocr-raw-content {
             margin-top: 10px;
             max-height: 300px;
@@ -400,6 +366,150 @@
             font-size: 12px;
             white-space: pre-wrap;
             word-wrap: break-word;
+        }
+
+        /* =========================================================
+           统一页面所有方框/容器内文本对齐、间距与排版风格
+           ========================================================= */
+
+        /* 1. 按钮组：统一高度、水平/垂直居中 */
+        .btn-group-custom {
+            align-items: center;
+        }
+        .btn-group-custom .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 38px;
+            padding: 6px 14px;
+            line-height: 1.2;
+            vertical-align: middle;
+        }
+
+        /* 2. 标签页：统一高度与垂直居中 */
+        .tabs-container {
+            align-items: center;
+        }
+        .tab {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 38px;
+            padding: 10px 20px;
+        }
+
+        /* 3. 表单标签与输入框：统一垂直居中、间距 */
+        .config-panel label,
+        .form-label {
+            margin-bottom: 0;
+            vertical-align: middle;
+            line-height: 1.4;
+        }
+        .config-panel .col-auto {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            min-height: 38px;
+        }
+        .config-panel .col-auto .form-control {
+            display: inline-block;
+            vertical-align: middle;
+        }
+
+        /* 4. 牛蛙定量设置项：统一垂直居中 */
+        .frog-item {
+            align-items: center;
+            min-height: 36px;
+        }
+        .frog-item .frog-label {
+            text-align: left;
+            line-height: 1.3;
+        }
+        .frog-item input {
+            text-align: center;
+        }
+
+        /* 5. 汇总卡片：标题左对齐，数值左右对齐 */
+        .summary-card {
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+        }
+        .summary-card h4 {
+            margin-top: 0;
+            text-align: left;
+        }
+        .summary-item {
+            align-items: center;
+            min-height: 24px;
+        }
+        .summary-label {
+            text-align: left;
+        }
+        .summary-value {
+            text-align: right;
+        }
+
+        /* 6. OCR 区域：上传区、结果区、表格对齐 */
+        .ocr-upload-area {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        .ocr-upload-area > div:first-of-type {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        .ocr-result-section h5 {
+            text-align: left;
+        }
+        .ocr-result-item {
+            align-items: center;
+            min-height: 28px;
+        }
+        .ocr-result-item .label {
+            text-align: left;
+        }
+        .ocr-result-item .value {
+            text-align: right;
+        }
+        .ocr-items-table th,
+        .ocr-items-table td {
+            text-align: center;
+            vertical-align: middle;
+        }
+        .ocr-actions {
+            align-items: center;
+        }
+
+        /* 7. 提示文本框：统一内边距、左对齐、垂直居中 */
+        .hint-box {
+            display: flex;
+            align-items: center;
+            padding: 8px 12px;
+            background: #e8f4fd;
+            border-left: 4px solid #007bff;
+            border-radius: 4px;
+            color: #0c5460;
+            font-size: 13px;
+            line-height: 1.5;
+            text-align: left;
+        }
+        .hint-box small {
+            color: #0c5460;
+            font-size: 13px;
+            line-height: 1.5;
+        }
+
+        /* 8. 通用容器对齐兜底 */
+        div, span, label, button, input, select, small {
+            box-sizing: border-box;
+        }
+        .d-flex.align-items-center {
+            align-items: center !important;
         }
     </style>
     <script src="xlsx-js-style.js"></script>
@@ -453,13 +563,6 @@
         <!-- OCR识别面板 -->
         <div class="ocr-panel" id="ocrPanel" style="display:none;">
             <h3>🔍 OCR 智能识别</h3>
-            
-            <!-- OCR引擎选择 -->
-            <div class="ocr-engine-tabs mb-3">
-                <button class="ocr-engine-tab active" data-engine="doubao" onclick="switchOCREngine('doubao')">
-                    🤖 豆包视觉
-                </button>
-            </div>
 
             <div class="row mb-3">
                 <div class="col-md-8">
@@ -484,7 +587,7 @@
                     <div id="doubaoConfig" style="display:none;">
                         <div class="mb-3">
                             <label class="fw-bold">API 端点：</label>
-                            <input type="text" id="doubaoApiUrl" class="form-control" value="http://localhost:5000/api/doubao">
+                            <input type="text" id="doubaoApiUrl" class="form-control" value="http://127.0.0.1:8090/api/doubao">
                             <small class="text-muted">本地代理地址（通过后端转发到火山引擎方舟 API，避免 CORS）</small>
                         </div>
                         <div class="mb-3">
@@ -558,7 +661,6 @@
             <button class="btn btn-warning" onclick="exportTableToExcel()">📊 一键复制表格</button>
             <button class="btn btn-danger" onclick="clearCurrentTab()">🗑️ 清空当前单据</button>
             <button class="btn btn-success" onclick="saveReceipt()">💾 保存单据</button>
-            <button class="btn btn-info" onclick="loadReceipt()">📂 读取存档</button>
         </div>
 
         <!-- 读取存档模态框 -->
@@ -579,6 +681,14 @@
         <!-- 汇总统计 -->
         <div class="summary-section">
             <div class="config-panel">
+                <div class="row mb-3">
+                    <div class="col-12">
+                        <div class="d-flex align-items-center gap-2">
+                            <button class="btn btn-info btn-sm" onclick="loadReceipt()">📂 读取存档</button>
+                            <small class="text-muted">读取已保存的单据数据</small>
+                        </div>
+                    </div>
+                </div>
                 <div class="row mb-2">
                     <div class="col-12">
                         <div class="row align-items-center">
@@ -603,7 +713,9 @@
                 </div>
                 <div class="row mb-2">
                     <div class="col">
-                        <small class="text-muted">提示：双击表格单元格可修改数值，分类会根据单框平均净重自动匹配</small>
+                        <div class="hint-box">
+                            <small>💡 提示：双击表格单元格可修改数值，分类会根据单框平均净重自动匹配</small>
+                        </div>
                     </div>
                 </div>
                 <div class="row mt-2">
@@ -640,7 +752,6 @@
         // OCR 相关变量
         let ocrFiles = [];
         let ocrCurrentResult = null;
-        let ocrEngine = 'doubao'; // 当前OCR引擎: doubao
         let ocrRawResults = null; // 保存原始OCR结果供解析
 
         document.addEventListener('DOMContentLoaded', function() {
@@ -680,9 +791,11 @@
             });
 
             // 从localStorage恢复豆包配置
+            // 把旧版默认的 localhost 迁移到 127.0.0.1，规避部分浏览器把 localhost 解析为 ::1
+            // 而服务仅监听 IPv4 导致 Failed to fetch 的问题。
             const savedDoubaoUrl = localStorage.getItem('doubaoApiUrl');
             if (savedDoubaoUrl) {
-                document.getElementById('doubaoApiUrl').value = savedDoubaoUrl;
+                document.getElementById('doubaoApiUrl').value = savedDoubaoUrl.replace(/localhost/i, '127.0.0.1');
             }
             const savedDoubaoKey = localStorage.getItem('doubaoApiKey');
             if (savedDoubaoKey) {
@@ -703,22 +816,6 @@
             document.getElementById('doubaoModel').addEventListener('change', function() {
                 localStorage.setItem('doubaoModel', this.value);
             });
-
-            // 初始化引擎配置显示
-            updateEngineConfigVisibility();
-        }
-
-        // 切换OCR引擎
-        function switchOCREngine(engine) {
-            ocrEngine = engine;
-            const tabs = document.querySelectorAll('.ocr-engine-tab');
-            tabs.forEach(t => t.classList.toggle('active', t.dataset.engine === engine));
-            updateEngineConfigVisibility();
-        }
-
-        // 更新引擎配置面板可见性
-        // 当前只有豆包一个引擎，不强制改变显示/隐藏，交给 toggleDoubaoConfig 按钮控制
-        function updateEngineConfigVisibility() {
         }
 
         // 切换豆包配置区显示
@@ -1902,6 +1999,7 @@
 - 毛重(weight)和皮(tare)是两列独立数据，毛重在左、皮在右，绝对不能把两列数字合并成一个数（如"174"和"7"是毛重174、皮7，不是毛重1747）。
 - 皮重栏(tare)如果为空、无手写标注，必须返回空字符串""，绝对不要填默认数字或猜测值。
 - 毛重栏(weight)如果无数据，返回0。
+- 当皮重栏为空（即后续会按默认6框处理）时，毛重通常为三位数（如149、152、138）。如果识别到类似"49"、"58"这种仅两位的毛重，请优先检查是否漏识别了前导数字（如应为"149"、"158"），确保毛重位数正确；如确实只有两位，也按原样返回。
 
 返回的JSON必须严格符合以下结构（缺失字段用空字符串""，序号用数字，毛重用数字，无数据时items可空数组）：
 {
@@ -2031,7 +2129,8 @@
                 } catch (error) {
                     clearTimeout(timeoutId);
                     console.error(`第${i + 1}张图片识别错误:`, error);
-                    errors.push(`${file.name}: ${error.message}`);
+                    const errType = error.name || 'Error';
+                    errors.push(`${file.name}: [${errType}] ${error.message}（请求地址: ${apiUrl}）`);
                 }
             }
 
@@ -2383,6 +2482,54 @@
             }
         }
 
+        // OCR 导入数据自动补位
+        // 策略：当皮框数采用默认值 6（即皮重/框数栏为空或无法识别）时，
+        // 若毛重不足三位数（缺前导数字），则在导入过程中自动前导补位（如 49 -> 149），
+        // 确保数值格式符合规范并顺利导入，而非拒绝或排除。
+        // 返回值：{ items, notices, fixedCount }
+        function autoFixOCRWeightItems(items, defaultCrateCount = 6) {
+            const fixedItems = [];
+            const notices = [];
+            let fixedCount = 0;
+
+            items.forEach((item, idx) => {
+                const weightRaw = String(item.weight);
+                const weightNum = Number(weightRaw);
+                const tareStr = String(item.tare || '');
+
+                // 判断有效皮框数
+                let effectiveCrateCount = defaultCrateCount;
+                if (tareStr && tareStr !== '-') {
+                    const tareClean = tareStr.replace(/[\\/\\|]/g, '');
+                    const tareNum = parseInt(tareClean, 10);
+                    if (!isNaN(tareNum) && tareNum > 0 && tareNum <= 20) {
+                        effectiveCrateCount = tareNum;
+                    }
+                }
+
+                // 默认6框规则：毛重不足三位数时，自动前导补位（最多补到三位）
+                if (effectiveCrateCount === defaultCrateCount &&
+                    !isNaN(weightNum) && weightNum > 0 && weightNum < 100) {
+                    let fixedWeight = weightRaw;
+                    while (fixedWeight.length < 3) {
+                        fixedWeight = '1' + fixedWeight;
+                    }
+                    fixedCount++;
+                    const originalIndex = item.index !== undefined ? item.index : (idx + 1);
+                    notices.push(
+                        `第 ${idx + 1} 行（原序号 ${originalIndex}）：毛重 ${weightRaw} 仅 ${weightRaw.length} 位，` +
+                        `默认 ${defaultCrateCount} 框时疑似漏识别前导数字，已自动补位为 ${fixedWeight} 并导入。`
+                    );
+                    fixedItems.push(Object.assign({}, item, { weight: Number(fixedWeight) }));
+                    return;
+                }
+
+                fixedItems.push(item);
+            });
+
+            return { items: fixedItems, notices, fixedCount };
+        }
+
         // 填充OCR结果到手工统计表格
         function fillOCRToTable() {
             if (!ocrCurrentResult || !ocrCurrentResult.structured_json) {
@@ -2403,6 +2550,9 @@
             if (!confirm(`确定要将 ${items.length} 条OCR识别记录填充到当前单据？这将清空现有数据。`)) {
                 return;
             }
+
+            // 数据自动补位：默认6框时毛重不足3位自动前导补位后导入
+            const { items: fixedItems, notices, fixedCount } = autoFixOCRWeightItems(items);
 
             // 填充Header信息
             if (newJson.header) {
@@ -2464,7 +2614,7 @@
             // 公式：毛重 = 皮(框数) × 皮重(皮框单重) + 单框净重 × 框数
             // 即：净重 = 毛重 - 框数 × 皮框单重；单框净重 = 净重 / 框数
             let importedCount = 0;
-            items.forEach(item => {
+            fixedItems.forEach(item => {
                 const weight = parseFloat(item.weight) || 0;
 
                 // 跳过毛重为0或空的条目
@@ -2504,7 +2654,16 @@
             updateSummary();
             updateHeaderFields();
 
-            alert(`已成功填充 ${importedCount} 条OCR识别记录到统计表格！`);
+            let msg = `已成功填充 ${importedCount} 条OCR识别记录到统计表格！`;
+            if (fixedCount > 0) {
+                msg += `\n\n🔧 自动校正了 ${fixedCount} 条毛重位数异常记录（已在导入时前导补位）：`;
+                msg += '\n' + notices.slice(0, 10).join('\n');
+                if (notices.length > 10) {
+                    msg += `\n...等共 ${notices.length} 条，完整信息请查看控制台（F12 → Console）。`;
+                }
+                msg += '\n\n这些记录默认按6框规则补位后导入，请核对原图确认无误。';
+            }
+            alert(msg);
         }
 
         // 复制OCR JSON结果
