@@ -26,3 +26,6 @@ desktop.ini
 *.log
 tmp/
 temp/
+
+# 项目私有数据（本地记忆/配置，不入库）
+.workbuddy/
