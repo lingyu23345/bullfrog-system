@@ -564,6 +564,14 @@
         <div class="ocr-panel" id="ocrPanel" style="display:none;">
             <h3>🔍 OCR 智能识别</h3>
 
+            <!-- 非本地访问提示：公网版无法使用 OCR，局域网需确保本地代理已启动 -->
+            <div id="ocrRemoteNotice" class="alert alert-warning" style="display:none; font-size:13px; padding:10px 12px; margin-bottom:12px;">
+                <strong>⚠️ OCR 仅在本地版可用</strong><br>
+                当前通过公网/局域网访问，OCR 需要电脑端运行 <code>paddle_server.py</code>（127.0.0.1:8090）。<br>
+                • 公网预览版：不支持 OCR，请手动录入数据。<br>
+                • 局域网使用手机：请访问 <code>http://&lt;电脑IP&gt;:8080</code>，并确保电脑已启动代理。
+            </div>
+
             <div class="row mb-3">
                 <div class="col-md-8">
                     <div class="ocr-upload-area" id="ocrUploadArea">
@@ -588,7 +596,7 @@
                         <div class="mb-3">
                             <label class="fw-bold">API 端点：</label>
                             <input type="text" id="doubaoApiUrl" class="form-control" value="http://127.0.0.1:8090/api/doubao">
-                            <small class="text-muted">本地代理地址（通过后端转发到火山引擎方舟 API，避免 CORS）</small>
+                            <small class="text-muted">本地代理地址（通过后端转发到火山引擎方舟 API，避免 CORS）。在局域网访问时会自动使用当前 host。</small>
                         </div>
                         <div class="mb-3">
                             <label class="fw-bold">API Key：</label>
@@ -764,6 +772,18 @@
             initOCRPanel();
         });
 
+        // 判断当前是否为本地访问（localhost / 127.0.0.1）
+        function isLocalhostAccess() {
+            return location.hostname === 'localhost' || location.hostname === '127.0.0.1';
+        }
+
+        // 获取默认豆包代理地址：本地用 127.0.0.1，局域网/其它环境用当前 host
+        // 这样手机访问电脑局域网 IP（如 http://192.168.x.x:8080）时，OCR 会自动指向同一 IP:8090
+        function getDefaultDoubaoApiUrl() {
+            const host = isLocalhostAccess() ? '127.0.0.1' : location.hostname;
+            return `http://${host}:8090/api/doubao`;
+        }
+
         // OCR 面板初始化
         function initOCRPanel() {
             const uploadArea = document.getElementById('ocrUploadArea');
@@ -790,13 +810,30 @@
                 handleFileSelection(files);
             });
 
-            // 从localStorage恢复豆包配置
-            // 把旧版默认的 localhost 迁移到 127.0.0.1，规避部分浏览器把 localhost 解析为 ::1
-            // 而服务仅监听 IPv4 导致 Failed to fetch 的问题。
-            const savedDoubaoUrl = localStorage.getItem('doubaoApiUrl');
-            if (savedDoubaoUrl) {
-                document.getElementById('doubaoApiUrl').value = savedDoubaoUrl.replace(/localhost/i, '127.0.0.1');
+            // 非本地访问时显示提示
+            const remoteNotice = document.getElementById('ocrRemoteNotice');
+            if (remoteNotice && !isLocalhostAccess()) {
+                remoteNotice.style.display = 'block';
             }
+
+            // 从localStorage恢复豆包配置
+            // 规则：
+            // 1. 当前为本地访问时，旧配置里的 localhost 自动改为 127.0.0.1（规避 IPv6 解析问题）。
+            // 2. 当前为局域网/公网访问时，若已保存的地址指向 localhost/127.0.0.1，
+            //    说明是之前本地留下的配置，应忽略并改用当前 host 的默认地址。
+            const defaultApiUrl = getDefaultDoubaoApiUrl();
+            const savedDoubaoUrl = localStorage.getItem('doubaoApiUrl');
+            let effectiveApiUrl = defaultApiUrl;
+            if (savedDoubaoUrl) {
+                const isSavedLocal = /https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?\//i.test(savedDoubaoUrl + '/');
+                if (isSavedLocal && !isLocalhostAccess()) {
+                    // 本地配置在远程/局域网环境下失效，使用当前 host 的默认地址
+                    effectiveApiUrl = defaultApiUrl;
+                } else {
+                    effectiveApiUrl = savedDoubaoUrl.replace(/localhost/i, '127.0.0.1');
+                }
+            }
+            document.getElementById('doubaoApiUrl').value = effectiveApiUrl;
             const savedDoubaoKey = localStorage.getItem('doubaoApiKey');
             if (savedDoubaoKey) {
                 document.getElementById('doubaoApiKey').value = savedDoubaoKey;
@@ -2130,7 +2167,17 @@
                     clearTimeout(timeoutId);
                     console.error(`第${i + 1}张图片识别错误:`, error);
                     const errType = error.name || 'Error';
-                    errors.push(`${file.name}: [${errType}] ${error.message}（请求地址: ${apiUrl}）`);
+                    let extraHint = '';
+                    if (error.message && /failed to fetch|networkerror|err_name_not_resolved|err_connection_refused/i.test(error.message)) {
+                        if (isLocalhostAccess()) {
+                            extraHint = '【请确认电脑已启动 paddle_server.py（8090 端口）】';
+                        } else if (/127\.0\.0\.1|localhost/.test(apiUrl)) {
+                            extraHint = '【公网/局域网访问不能使用 127.0.0.1，请改为电脑实际 IP 或使用手机访问 http://<电脑IP>:8080】';
+                        } else {
+                            extraHint = '【请确认目标地址可访问且 paddle_server.py 已启动】';
+                        }
+                    }
+                    errors.push(`${file.name}: [${errType}] ${error.message}（请求地址: ${apiUrl}）${extraHint}`);
                 }
             }
 
